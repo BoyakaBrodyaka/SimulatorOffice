@@ -1,12 +1,15 @@
 package org.example;
 
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.example.design.ChatMessageListener;
 import org.example.menu.MenuItemHandler;
 import org.example.menu.MenuListener;
 import org.example.menu.rebirth.UpgradesMenu;
@@ -31,6 +34,7 @@ import org.example.stats.commands.SetStatusCommand;
 import org.example.stats.scoreboard.ScoreboardManager;
 
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class MainClass extends JavaPlugin implements Listener {
     private PlayerStats playerStats;
@@ -48,7 +52,7 @@ public class MainClass extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-            // Подключение к MongoDB
+        // Подключение к MongoDB
 
             playerStatsManager = new PlayerStatsManager(this);
             incomeManager = new IncomeManager(playerStatsManager);
@@ -74,6 +78,10 @@ public class MainClass extends JavaPlugin implements Listener {
                     for (Player player : getServer().getOnlinePlayers()) {
                         UUID uuid = player.getUniqueId();
                         scoreboardManager.updateScoreboard(player);
+                        PlayerStats playerStats = playerStatsManager.getPlayerStats(player);
+                        if (playerStats != null) {
+                            playerStats.updateTabName();
+                        }
                     }
                 }
             }.runTaskTimer(this, 0L, 20L);
@@ -91,11 +99,13 @@ public class MainClass extends JavaPlugin implements Listener {
             Bukkit.getPluginManager().registerEvents(new MenuListener(settingsMenu, officeManager, playerStatsManager, this), this);
             Bukkit.getPluginManager().registerEvents(new MenuItemHandler(), this);
             getServer().getPluginManager().registerEvents(playerStatsManager, this);
-            getServer().getPluginManager().registerEvents(new PlayerJoinListener(officeManager, arenaManager), this);
+            getServer().getPluginManager().registerEvents(new PlayerJoinListener(officeManager, arenaManager, playerStatsManager), this);
             getServer().getPluginManager().registerEvents(new CreateOfficeListener(officeManager), this);
             getServer().getPluginManager().registerEvents(new OfficeInventory(shopMenu), this);
             getServer().getPluginManager().registerEvents(new FurnitureInventory(shopMenu, new FurnitureManager(furnitureInventory, playerStatsManager)), this);
             getServer().getPluginManager().registerEvents(new EquipmentInventory(shopMenu), this);
+            getServer().getPluginManager().registerEvents(new ChatMessageListener(playerStatsManager), this);
+            getServer().getPluginManager().registerEvents(new HungerSpeedListener(), this);
 
             for (Player player : Bukkit.getOnlinePlayers()) {
                 playerStatsManager.loadPlayerData(player);

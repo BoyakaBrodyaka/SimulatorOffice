@@ -1,8 +1,10 @@
 package org.example.stats;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.example.design.TextFormatter;
 import org.example.stats.status.IncomeModifier;
 import org.example.stats.status.IncomeModifierFactory;
 
@@ -42,7 +44,7 @@ public class PlayerStats {
         save();
     }
     public int getLevel() { return level; }
-    public void setLevel(int level) { this.level = level; save(); }
+    public void setLevel(int level) { this.level = level; save(); updateTabName(); }
     public int getRebirth() { return rebirth; }
     public void setRebirth(int rebirth) { this.rebirth = rebirth; save(); }
     public int getTokens() { return tokens; }
@@ -114,5 +116,18 @@ public class PlayerStats {
 
     public void updateIncome() {
         income = getModifiedIncome();
+    }
+
+    public String getFormattedTabName() {
+        return TextFormatter.formatLevelAndNickname(level, playerName);
+    }
+
+    public void updateTabName() {
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            if (onlinePlayer.getName().equals(playerName)) {
+                onlinePlayer.setPlayerListName(getFormattedTabName());
+                break;
+            }
+        }
     }
 }

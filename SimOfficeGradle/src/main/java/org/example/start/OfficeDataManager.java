@@ -17,6 +17,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,13 +26,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 import java.util.logging.Level;
 
 public class OfficeDataManager {
 
     private final JavaPlugin plugin;
-    private final Map<UUID, Location> officeLocations;
+    private final Map<String, Location> officeLocations;
     private final Random random;
 
     public OfficeDataManager(JavaPlugin plugin) {
@@ -40,21 +41,33 @@ public class OfficeDataManager {
     }
 
     public Location getOfficeLocation(Player player) {
-        return officeLocations.get(player.getUniqueId());
+        return officeLocations.get(player.getName());
     }
 
     public void setOfficeLocation(Player player, Location location) {
-        officeLocations.put(player.getUniqueId(), location);
+        officeLocations.put(player.getName(), location);
     }
 
-    public Map<UUID, Location> getAllOfficeLocations() {
+    public Map<String, Location> getAllOfficeLocations() {
         return officeLocations;
     }
 
     public boolean createOfficeForPlayer(Player player) {
+        if (player == null) {
+            plugin.getLogger().log(Level.SEVERE, "Player object is null");
+            return false;
+        }
+
         org.bukkit.World bukkitWorld = Bukkit.getWorld("PrisonServer");
         if (bukkitWorld == null) {
             player.sendMessage("Мир PrisonServer не найден!");
+            return false;
+        }
+
+        Plugin wePlugin = Bukkit.getPluginManager().getPlugin("WorldEdit");
+        if (wePlugin == null || !(wePlugin instanceof WorldEditPlugin)) {
+            plugin.getLogger().log(Level.SEVERE, "WorldEdit plugin not found or not correctly loaded");
+            player.sendMessage("WorldEdit plugin not found or not correctly loaded.");
             return false;
         }
 
@@ -78,9 +91,13 @@ public class OfficeDataManager {
 
         try {
             World world = BukkitAdapter.adapt(bukkitWorld);
+            if (world == null) {
+                plugin.getLogger().log(Level.SEVERE, "Adapted World is null");
+                return false;
+            }
             pasteStructure(BlockVector3.at(x, y, z), world);
-            // Обновляем координаты спавна игрока внутри офиса
-            Location spawnLocation = new Location(bukkitWorld, x + 2, y + 1, z + 2);
+
+            Location spawnLocation = new Location(bukkitWorld, x + 2, y + 1, z + 2); // Координаты спавна внутри офиса
             setOfficeLocation(player, spawnLocation);
             player.teleport(spawnLocation); // Телепортируем игрока внутрь офиса
             player.sendMessage("Ваш офис был создан в координатах: " + x + ", " + y + ", " + z);
@@ -121,15 +138,15 @@ public class OfficeDataManager {
     }
 
     public void removeOffice(Player player) {
-        Location officeLocation = officeLocations.remove(player.getUniqueId());
+        Location officeLocation = officeLocations.remove(player.getName());
         if (officeLocation != null) {
             World world = BukkitAdapter.adapt(officeLocation.getWorld());
             BlockVector3 pt1 = BlockVector3.at(officeLocation.getBlockX(), officeLocation.getBlockY(), officeLocation.getBlockZ());
-
+            // Убедитесь, что размеры региона соответствуют размеру офиса
             BlockVector3 pt2 = pt1.add(20, 7, 20);
 
             try (EditSession editSession = WorldEdit.getInstance().newEditSession(world)) {
-                CuboidRegion region = new CuboidRegion(pt1, pt2);
+                CuboidRegion region = new CuboidRegion(pt1, pt2); // Создаем регион для удаления
                 editSession.setBlocks(region, BlockTypes.AIR.getDefaultState());
                 Operations.complete(editSession.commit());
             } catch (Exception e) {

@@ -16,13 +16,13 @@ public class OfficeManager {
 
     private final JavaPlugin plugin;
     private final ConcurrentHashMap<Player, Long> cooldowns;
-    private final long cooldownTime;
+    private final long cooldownTime; // Time in milliseconds
     private final OfficeDataManager officeDataManager;
 
     public OfficeManager(JavaPlugin plugin, OfficeDataManager officeDataManager) {
         this.plugin = plugin;
         this.cooldowns = new ConcurrentHashMap<>();
-        this.cooldownTime = 5000L;
+        this.cooldownTime = 5000L; // 5 seconds cooldown
         this.officeDataManager = officeDataManager;
     }
 
@@ -41,7 +41,7 @@ public class OfficeManager {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             player.sendMessage("Ты: Я сделаю свой офис!");
             giveCreateOfficeItem(player);
-        }, 60L);
+        }, 60L); // 3 seconds delay
     }
 
     private void giveCreateOfficeItem(Player player) {
@@ -54,8 +54,10 @@ public class OfficeManager {
 
         ItemStack createOfficeItem = new ItemStack(Material.PAPER);
         ItemMeta meta = createOfficeItem.getItemMeta();
-        meta.setDisplayName("Создать офис");
-        createOfficeItem.setItemMeta(meta);
+        if (meta != null) {
+            meta.setDisplayName("Создать офис");
+            createOfficeItem.setItemMeta(meta);
+        }
         player.getInventory().setItem(4, createOfficeItem);
     }
 
@@ -75,9 +77,9 @@ public class OfficeManager {
                     player.getInventory().remove(Material.PAPER); // Удаляем бумажку из инвентаря
                     player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false)); // Эффект ночного зрения
                     player.sendMessage("Добро пожаловать в ваш новый офис!");
-                }, 20L);
-            }, 20L);
-        }, 20L);
+                }, 20L); // 1 second delay
+            }, 20L); // 1 second delay
+        }, 20L); // 1 second delay
     }
 
     public void teleportToOffice(Player player) {
@@ -112,7 +114,7 @@ public class OfficeManager {
             Bukkit.getLogger().warning("Ошибка: officeLocation равен null");
             return null;
         }
-        return officeLocation.clone().add(1, 1, 1);
+        return officeLocation.clone().add(1, 1, 1); // Убедитесь, что игрок спавнится внутри офиса
     }
 
     public Location getOfficeLocation(Player player) {

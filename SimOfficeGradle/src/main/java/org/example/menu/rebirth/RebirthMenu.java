@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.example.menu.rebirth.RebirthHandler;
 import org.example.stats.PlayerStats;
 
 import java.util.Arrays;

@@ -54,13 +54,14 @@ public class ArenaManager {
     }
 
     private boolean isLocationSuitable(Location location) {
-        for (Map.Entry<UUID, Location> entry : officeDataManager.getAllOfficeLocations().entrySet()) {
+        for (Map.Entry<String, Location> entry : officeDataManager.getAllOfficeLocations().entrySet()) {
             if (entry.getValue().distance(location) < 20) {
                 return false;
             }
         }
         return true;
     }
+
 
     private void buildArena(Location location) {
         World world = location.getWorld();

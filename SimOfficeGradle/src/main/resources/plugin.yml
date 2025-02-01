@@ -3,7 +3,6 @@ api-version: 1.19
 version: 1.0.0
 author: BoyakaBrodyaka
 main: org.example.MainClass
-softdepend: [WorldEdit]
 commands:
   setstat:
     description: command for give a stats

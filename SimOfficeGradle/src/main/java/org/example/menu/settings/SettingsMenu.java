@@ -30,7 +30,6 @@ public class SettingsMenu implements Listener {
         settingsMenu.setItem(15, flightSpeed);
 
         player.openInventory(settingsMenu);
-        Bukkit.getLogger().info("Settings menu opened for player: " + player.getName());
     }
 
     @EventHandler
@@ -58,23 +57,5 @@ public class SettingsMenu implements Listener {
                     break;
             }
         }
-    }
-
-    @EventHandler
-    public void onPlayerChat(AsyncPlayerChatEvent event) {
-        Player player = event.getPlayer();
-        String message = event.getMessage();
-        try {
-            int speed = Integer.parseInt(message);
-            if (speed < 1 || speed > 5) {
-                player.sendMessage("§cОшибка: скорость должна быть от 1 до 5.");
-            } else {
-                flightSpeedSetting.setFlightSpeed(player, speed);
-                player.sendMessage("§aСкорость полета установлена на " + speed + ".");
-            }
-        } catch (NumberFormatException e) {
-            player.sendMessage("§cОшибка: введите число от 1 до 5.");
-        }
-        event.setCancelled(true);
     }
 }

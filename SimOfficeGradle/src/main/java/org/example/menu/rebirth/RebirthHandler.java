@@ -20,7 +20,8 @@ public class RebirthHandler {
         this.playerStatsManager = playerStatsManager;
         this.playerStats = playerStatsManager.getPlayerStats(playerName);
         this.currentRebirthCost = calculateRebirthCost(playerStats.getRebirth());
-        this.nextTokenCost = calculateNextTokenCost(playerStats.getTokens()); }
+        this.nextTokenCost = calculateNextTokenCost(playerStats.getTokens());
+    }
 
     public double calculateRebirthCost(int level) {
         return BASE_REBIRTH_COST * level;
@@ -45,14 +46,22 @@ public class RebirthHandler {
                 currentLevel, FormatNumber.formatNumber(currentBalance), FormatNumber.formatNumber(requiredBalance), rebirthLevel, rebirthLevel + 1, tokens, Math.min(tokens + 1, MAX_TOKENS));
     }
 
-    public boolean canRebirth(double playerMoney) {
-        return playerMoney >= currentRebirthCost;
+    public boolean canRebirth(double playerMoney, int playerLevel) {
+        return playerMoney >= currentRebirthCost && playerLevel >= 50;
     }
 
-    public void doRebirth() {
-        playerStats.setRebirth(playerStats.getRebirth() + 1);
-        playerStats.setTokens(1);
-        currentRebirthCost = calculateRebirthCost(playerStats.getRebirth());
-        nextTokenCost = calculateNextTokenCost(playerStats.getTokens());
+    public void doRebirth(Player player) {
+        if (playerStats.getBalance() >= currentRebirthCost && playerStats.getLevel() >= 50) {
+            playerStats.setRebirth(playerStats.getRebirth() + 1);
+            playerStats.setTokens(Math.min(playerStats.getTokens() + 1, MAX_TOKENS));
+            resetPlayerStats();
+            currentRebirthCost = calculateRebirthCost(playerStats.getRebirth());
+            nextTokenCost = calculateNextTokenCost(playerStats.getTokens());
+        }
+    }
+
+    private void resetPlayerStats() {
+        playerStats.setLevel(0);
+        playerStats.setBalance(0);
     }
 }

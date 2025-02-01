@@ -22,8 +22,8 @@ repositories {
 }
 
 dependencies {
-    implementation("org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT")
-    implementation("com.sk89q.worldedit:worldedit-bukkit:7.3.0")
+    implementation("org.spigotmc:spigot-api:1.19.1-R0.1-SNAPSHOT")
+    implementation("com.sk89q.worldedit:worldedit-bukkit:7.2.14")
     implementation("com.comphenix.protocol:ProtocolLib:4.7.0")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
